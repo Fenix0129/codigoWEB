@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de proyectos</title>
+    <style>
+        /*Estilo y centrado*/
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            background-color: antiquewhite;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 50px;
+            margin: 0;
+        }
+
+        /*Titulo*/
+        h2 {
+            color: crimson;
+        }
+
+        /*Detalles dle input*/
+        .inputDetails {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        /*Escribe la respuesta*/
+        input {
+            padding: 10px;
+            border: 2px solid green;
+            border-radius:  4px;
+            width: 250px;
+        }
+
+        /*Crea el boton*/
+        button {
+            padding: 10px 15px;
+            background-color: aliceblue;
+            color: blueviolet;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        /*Lista no ordenada*/
+        ul {
+            list-style: none;
+            padding: 0;
+            width: 320px;
+        }
+
+        /*Lista ordenada*/
+        ol {
+            background: white;
+            margin-bottom: 5px;
+            padding: 10px;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid gray;
+        }
+
+        /*Eliminar*/
+        .delate {
+            color: coral;
+            font-size: 12px;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+    </style>
+
+</head>
+<body>
+    <h2>Mis proyectos pendientes</h2>
+    <div class="inputDetails">
+        <input type="text" placeholder="Nueva tarea...">
+        <button type="button">Añadir</button>
+    </div>
+    <ul>
+        <ol>
+            Tarea de ejemplo 1
+            <span class="delate">Eliminar</span>
+        </ol>
+        <ol>
+            Tarea de ejemplo 2
+            <span class="delate">Eliminar</span>
+        </ol>
+    </ul>
+</body>
+</html>

@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi página</title>
+    <style>
+        /*Da cuerpo*/
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background-color: aquamarine;
+        }
+
+        /*Es el encabezado*/
+        header { 
+            background-color: rgb(0, 0, 0);
+            color: aliceblue;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        /*Botones de navefacion*/
+        nav button {
+            background: none;
+            border: 2px solid white;
+            color: beige;
+            padding: 10px 5px;
+            cursor: pointer;
+            margin: 0 5px;
+        }
+
+        /*El main*/
+        main { 
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 30px;
+        }
+
+        /*Establece la seccion*/
+        section {
+            display: none;
+            width: 700px;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /*Permita que la seccion este activa*/
+        section.active {
+            display: flex;
+        }
+
+        /*aja de loggin*/
+        .logginBox {
+            background-color: rgb(226, 92, 43);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0px 5px 15px rgb(0,0,0,0.1);
+            width: 250px;
+        }
+
+        /*Input*/
+        .inputGroup {
+            width: 100%;
+        }
+
+        /*Label*/
+        label {
+            display: block;
+            margin-bottom: 10px;
+            color: rgb(0, 0, 0);
+        }
+
+        /*El input de loggi*/
+        .logginBox input {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid rebeccapurple;
+            border-radius: 15px;
+            box-sizing: border-box;
+            margin-bottom: 20px;
+        }
+
+        /*Forma del boton*/
+        .btnForm {
+            width: 100%;
+            padding: 10px;
+            background-color: bisque;
+            border: none;
+            border-radius: 4px;
+            color: black;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        /*Subtitulo*/
+        h2.loginTitle {
+            text-align: center;
+            margin-bottom: 20px;
+            color: black;
+        }
+
+        /*Para el color recuadro*/
+        .projectBg {
+            background-color: rgb(140, 196, 245);
+        }
+
+        /*Titulo*/
+        h2.projectTiltle {
+            color: darkred;
+        }
+
+        /*Detalles*/
+        .inpuDetails {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        /*Input*/
+        .inpuDetails input {
+            padding: 15px;
+            border: 5px solid blue;
+            border-radius: 5px;
+            width: 200px;
+        }
+
+        /*Add*/
+        .btnAdd {
+            padding: 10px 15px;
+            background-color: aliceblue;
+            color: blueviolet;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        /*Lista no ordenada*/
+        ul {
+            list-style: none;
+            padding: 0;
+            width: 320px;
+        }
+
+        /*Lista ordenada*/
+        ol {
+            background: white;
+            margin-bottom: 5px;
+            padding: 10px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid gray;
+        }
+
+        /*DDetale*/
+        .delate {
+            color: rgb(34, 65, 4);
+            font-size: 10px;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        /*Info*/
+        .infoPage {
+            text-align: center;
+            max-width: 600px;
+        }
+
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Mi página WEB</h1>
+        <nav> 
+            <button onclick="showSection('login')">Login</button>
+            <button onclick="showSection('registro')">Registro</button>
+            <button onclick="showSection('proyectos')">Proyectos</button>
+            <button onclick="showSection('nosotros')">Nosotros</button>
+        </nav>
+    </header>
+
+    <main id="main-container">
+        <section id="login" class="active login-bg">
+            <div class="logginBox">
+                <h2 class="loginTitle">Iniciar sesión</h2>
+                <form id="formLoggin">
+                    <div class="inputGroup">
+                        <label>Usuario</label>
+                        <input type="text" id="userInput" placeholder="correo">
+                    </div>
+                    <div class="inputGroup">
+                        <label>Contraseña</label>
+                        <input type="password" id="passInput" placeholder="contraseña">
+                    </div>
+                    <button type="button" class="btnForm" onclick="validarAcceso()">Entrar</button>
+                    <button type="button" class="btnForm" onclick="showSection('registro')">Registrarse</button>
+                </form>
+            </div>
+        </section>
+
+        <section id="registro" class="login-bg">
+            <div class="logginBox">
+                <h2 class="loginTitle">Crear cuenta</h2>
+                <form id="formRegistro">
+                    <label>Nombre Completo</label>
+                    <input type="text" id="regNombre">
+                    <label>E-mail</label>
+                    <input type="email" id="regEmail">
+                    <label>Contraseña</label>
+                    <input type="password" id="regPassword">
+                    <button type="button" class="btnForm" onclick="simularRegistro()">Finalizar Registro</button>
+                    </form>
+            </div>
+        </section>
+
+        <section id="proyectos" class="projectBg">
+           <h2 class="proj-title">Mis proyectos pendientes</h2>
+            <div class="inputDetails">
+                <input type="text" placeholder="Nueva tarea...">
+                <button type="button" class="btnAdd">Añadir</button>
+            </div>
+            <ul>
+                <ol>Tarea de ejemplo 1 <span class="delate">Eliminar</span></ol>
+                <ol>Tarea de ejemplo 2 <span class="delate">Eliminar</span></ol>
+            </ul>
+        </section>
+
+        <section id="nosotros" class="projectBg">
+            <div class="info-page">
+                <h2 style="color: brown;">Sobre Nosotros</h2>
+                <p>Somos una plataforma dedicada a la gestión de tareas y proyectos personales de forma eficiente.</p>
+            </div>
+        </section>
+    </main>
+    <script>
+        //Establece las credenciales
+        const usuario = "13.ivan.ornelas.lac@gmail.com";
+        const contraseña = "Fenix12345";
+
+        function showSection(id) {
+            //Oculta todas las secciones
+            const sections = document.querySelectorAll('section');
+            sections.forEach(sec => sec.classList.remove('active'));
+            //Muestra la seleccionada
+            document.getElementById(id).classList.add('active');
+        }
+
+        //Valida las credenciales
+        function validarAcceso() {
+            const user = document.getElementById('userInput').value;
+            const pass = document.getElementById('passInput').value;
+
+             if (user === usuario && pass === contraseña) {
+                alert("Bienvenido Iván");
+                showSection('proyectos');
+            } else {
+                alert("Usuario o contraseña incorrectos.");
+            }
+        }
+
+        //Simula el registro
+        function simularRegistro() {
+            const nombre = document.getElementById('regNombre').value;
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+            
+            if (nombre === "" || email === "" || password === "") {
+                alert("Por favor, llena todos los campos.");
+            } else {
+                if(!email.includes("@")) {
+                    alert("Ingresa un correo valido");
+                    return;
+                }
+
+                //Muestra el anuncio
+                alert("Registro exitoso\nNombre: " + nombre + "\nEmail: " + email + "\n\nYa puedes iniciar sesión"); 
+                document.getElementById('formRegistro').reset();
+                //Redirige al login
+                showSection('login');
+            }
+        }
+    </script>
+</body>
+</html>

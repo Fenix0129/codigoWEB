@@ -19,7 +19,7 @@
         header { 
             background-color: rgb(0, 0, 0);
             color: aliceblue;
-            padding: 1rem;
+            padding: 15px 0;
             text-align: center;
         }
 
@@ -177,15 +177,10 @@
     </style>
 </head>
 <body>
-    <header>
-        <h1>Mi página WEB</h1>
-        <nav> 
-            <button onclick="showSection('login')">Login</button>
-            <button onclick="showSection('registro')">Registro</button>
-            <button onclick="showSection('proyectos')">Proyectos</button>
-            <button onclick="showSection('nosotros')">Nosotros</button>
-        </nav>
-    </header>
+    
+    <div id="contenedor-titulo-fijo"></div>
+    
+    <div id="contenedor-botones-dinamico" style="display: none;"></div>
 
     <main id="main-container">
         <section id="login" class="active login-bg">
@@ -240,30 +235,91 @@
             </div>
         </section>
     </main>
+
+    <div id="contenedor-footer"></div>
+
     <script>
+
+        async function cargarComponentes() {
+            try {
+                //Carga el header principal
+                const resTitulo = await fetch('header_principal.html');
+                const htmlTitulo = await resTitulo.text();
+                document.getElementById('contenedor-titulo-fijo').innerHTML = htmlTitulo;
+
+                //Carga el header secundario
+                const resBotones = await fetch('header.html');
+                const htmlBotones = await resBotones.text();
+                document.getElementById('contenedor-botones-dinamico').innerHTML = htmlBotones;
+
+                //Carga el footer
+                const resFooter = await fetch('footer.html');
+                const htmlFooter = await resFooter.text();
+                document.getElementById('contenedor-footer').innerHTML = htmlFooter;
+
+                //Actualiza la interfaz
+                actualizarInterfaz(!!localStorage.getItem('miToken'));
+        
+            } catch (error) {
+                //Muestra en caso de error
+                console.error("Error al cargar los componentes:", error);
+            }
+        }
+
+        //Carga los componentes
+        cargarComponentes();
+
+        function actualizarInterfaz(logueado) {
+            const contenedorTitulo = document.getElementById('contenedor-titulo-fijo');
+            const contenedorBotones = document.getElementById('contenedor-botones-dinamico');
+
+            if (logueado) {
+                //Muestra el secundario
+                contenedorTitulo.style.display = 'none';
+                contenedorBotones.style.display = 'block';
+            } else {
+                //Si no esta, muestra el principal
+                contenedorTitulo.style.display = 'block';
+                contenedorBotones.style.display = 'none';
+            }
+        }
+
         //Establece las credenciales
-        const usuario = "13.ivan.ornelas.lac@gmail.com";
-        const contraseña = "Fenix12345";
+        const credenciales = { user: "13.ivan.ornelas.lac@gmail.com", pass: "Fenix12345" };
 
         function showSection(id) {
-            //Oculta todas las secciones
-            const sections = document.querySelectorAll('section');
-            sections.forEach(sec => sec.classList.remove('active'));
-            //Muestra la seleccionada
+           const token = localStorage.getItem('miToken');
+            // Si no hay token, solo permite login o registro
+            if (!token && (id === 'proyectos' || id === 'nosotros')) {
+                id = 'login';
+            }
+            document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
         }
 
         //Valida las credenciales
         function validarAcceso() {
-            const user = document.getElementById('userInput').value;
-            const pass = document.getElementById('passInput').value;
+            const userEmail = document.getElementById('userInput').value;
+            const password = document.getElementById('passInput').value;
 
-             if (user === usuario && pass === contraseña) {
+            if (userEmail === credenciales.user && password === credenciales.pass) {
+                localStorage.setItem('miToken', 'token');
                 alert("Bienvenido Iván");
+                actualizarInterfaz(true);
                 showSection('proyectos');
+                setTimeout(() => {
+                    alert("Tu sesión ha expirado");
+                    logout();
+                }, 3600000)
             } else {
                 alert("Usuario o contraseña incorrectos.");
             }
+        }
+
+        function logout() {
+            localStorage.removeItem('miToken');
+            actualizarInterfaz(false);
+            showSection('login');
         }
 
         //Simula el registro
@@ -287,6 +343,7 @@
                 showSection('login');
             }
         }
+        
     </script>
 </body>
 </html>

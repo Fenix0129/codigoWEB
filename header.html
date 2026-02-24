@@ -1,0 +1,31 @@
+<nav style="background-color: #1a1a1a; padding: 35px 0; border-bottom: 2px solid #333; width: 100%; display: flex; justify-content: center;">
+    <ul style="list-style: none; display: flex; gap: 40px; margin: 0; padding: 0;">
+        <li><button class="nav-btn" onclick="showSection('proyectos')">Proyectos</button></li>
+        <li><button class="nav-btn" onclick="showSection('nosotros')">Nosotros</button></li>
+        <li><button class="nav-btn btn-salir" onclick="logout()">Salir</button></li>
+    </ul>
+</nav>
+
+<style>
+    .nav-btn {
+        background: none;
+        border: 2px solid white;
+        color: white;
+        padding: 12px 30px;
+        cursor: pointer;
+        border-radius: 10px;
+        font-family: 'Times New Roman', serif;
+        font-size: 18px;
+        font-weight: bold;
+        transition: all 0.3s ease;
+    }
+    .nav-btn:hover {
+        background-color: white;
+        color: black;
+        transform: scale(1.05);
+    }
+    .btn-salir {
+        border-color: #FF876E;
+        color: #FF876E;
+    }
+</style>

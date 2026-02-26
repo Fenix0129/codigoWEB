@@ -229,11 +229,15 @@
         </section>
 
         <section id="nosotros" class="projectBg">
-            <div class="info-page">
-                <h2 style="color: brown;">Sobre Nosotros</h2>
-                <p>Somos una plataforma dedicada a la gestión de tareas y proyectos personales de forma eficiente.</p>
+            <div class="infoPage">
+                <h2 style="color: brown;">API Pokemon</h2>
+                <div style="background: white; padding: 20px; border-radius: 15px; display: inline-block; text-align: center;">
+                    <h3 id="pokeNombre" style="text-transform: uppercase; color: #333; margin: 0 0 10px 0;"></h3>
+                    <img id="pokeImg" src="" alt="Ditto" style="width: 150px; height: 150px;">
+                </div>
             </div>
         </section>
+
     </main>
 
     <div id="contenedor-footer"></div>
@@ -269,6 +273,21 @@
         //Carga los componentes
         cargarComponentes();
 
+        async function obtenerMascota() {
+            try {
+                //Busca el link
+                const respuesta = await fetch('https://pokeapi.co/api/v2/pokemon/ditto');
+                const datos = await respuesta.json();
+
+                //Establece la imagen y el nombre
+                document.getElementById('pokeNombre').innerText = datos.name;
+                document.getElementById('pokeImg').src = datos.sprites.front_default;
+
+            } catch (error) {
+                console.error("No se pudo cargar la imagen:", error);
+            }
+        }
+
         function actualizarInterfaz(logueado) {
             const contenedorTitulo = document.getElementById('contenedor-titulo-fijo');
             const contenedorBotones = document.getElementById('contenedor-botones-dinamico');
@@ -288,13 +307,16 @@
         const credenciales = { user: "13.ivan.ornelas.lac@gmail.com", pass: "Fenix12345" };
 
         function showSection(id) {
-           const token = localStorage.getItem('miToken');
-            // Si no hay token, solo permite login o registro
+            const token = localStorage.getItem('miToken');
             if (!token && (id === 'proyectos' || id === 'nosotros')) {
-                id = 'login';
-            }
-            document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
+            id = 'login';
+        }
+        
+        if (id === 'nosotros') {
+            obtenerMascota();
+        }
+        document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
         }
 
         //Valida las credenciales

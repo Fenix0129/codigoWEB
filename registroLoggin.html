@@ -174,6 +174,70 @@
             max-width: 600px;
         }
 
+        /*Contiene pokemon*/
+        #contenedor-pokemon {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+            max-height: 500px;
+            overflow-y: auto; 
+            width: 100%;
+        }
+
+        /*Carta*/
+        .card-pokemon {
+            background: white;
+            border-radius: 15px;
+            padding: 15px;
+            width: 220px; 
+            border: 1px solid #ddd;
+            text-align: center;
+            box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-sizing: border-box;
+        }
+
+        /*Imagen*/
+        .card-pokemon img {
+            width: 80px;
+            height: 80px;
+        }
+
+        /*Establece los stats*/
+        .stats-list {
+            font-size: 10px;
+            text-align: left;
+            background: #eeeeee;
+            padding: 8px;
+            border-radius: 8px;
+            list-style: none;
+            margin: 10px 0 0 0;
+            width: 100%; 
+            box-sizing: border-box; 
+            display: grid;
+            grid-template-columns: 1fr 1fr; 
+            gap: 4px;
+        }
+
+        /*Alinea elementos*/
+        .battle-setup {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        /*Dentro de acja*/
+        .battle-setup input {
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
     </style>
 </head>
 <body>
@@ -217,28 +281,251 @@
         </section>
 
         <section id="proyectos" class="projectBg">
-           <h2 class="proj-title">Mis proyectos pendientes</h2>
-            <div class="inputDetails">
-                <input type="text" placeholder="Nueva tarea...">
-                <button type="button" class="btnAdd">Añadir</button>
+            <h2 class="loginTitle">Arena de Batalla Pokémon</h2>
+            <div id="battle-setup" class="battle-setup">
+                <input type="text" id="p1-input" placeholder="Nombre Pokémon 1">
+                <span style="font-weight: bold; font-size: 20px;"> VS </span>
+                <input type="text" id="p2-input" placeholder="Nombre Pokémon 2">
+                <button class="btnAdd" onclick="prepararBatallaAutomatica()">¡Iniciar Simulación!</button>
             </div>
-            <ul>
-                <ol>Tarea de ejemplo 1 <span class="delate">Eliminar</span></ol>
-                <ol>Tarea de ejemplo 2 <span class="delate">Eliminar</span></ol>
-            </ul>
+    
+            <div id="battle-field" style="display: none; width: 100%; margin-top: 20px;">
+                <div style="display: flex; justify-content: space-around; align-items: flex-start;">
+                    <div id="player1-card" class="card-pokemon">
+                        <div id="p1-hp-bar" style="width: 100%; background: #eee; height: 10px; border-radius: 5px;">
+                            <div id="p1-hp-fill" style="width: 100%; background: green; height: 100%; border-radius: 5px; transition: 0.5s;"></div>
+                        </div>
+                        <p id="p1-hp-text">100%</p>
+                        <div id="p1-sprite"></div>
+                    </div>
+
+                    <div id="battle-log" style="width: 250px; background: white; padding: 10px; border-radius: 10px; height: 200px; overflow-y: auto; font-size: 12px; border: 2px solid #333;">
+                        <p>Esperando movimientos...</p>
+                    </div>
+            
+                    <div id="player2-card" class="card-pokemon">
+                        <div id="p2-hp-bar" style="width: 100%; background: #eee; height: 10px; border-radius: 5px;">
+                            <div id="p2-hp-fill" style="width: 100%; background: green; height: 100%; border-radius: 5px; transition: 0.5s;"></div>
+                        </div>
+                        <p id="p2-hp-text">100%</p>
+                        <div id="p2-sprite"></div>
+                    </div>
+                </div>
+            </div>
+                
+            <div id="ganador-screen" style="display: none; text-align: center;">
+                <h1 style="color: gold; text-shadow: 2px 2px black;">¡Ganador!</h1>
+                <div id="ganador-sprite"></div>
+                <button class="btnForm" onclick="resetearBatalla()">Pelear de nuevo</button>
+            </div>
         </section>
 
         <section id="nosotros" class="projectBg">
-            <div class="info-page">
-                <h2 style="color: brown;">Sobre Nosotros</h2>
-                <p>Somos una plataforma dedicada a la gestión de tareas y proyectos personales de forma eficiente.</p>
+            <div class="infoPage">
+                <h2 style="color: brown;">Explorador Pokémon</h2>
+                
+                <div style="margin-bottom: 20px;">
+                    <input type="text" id="inputBusqueda" placeholder="Nombre, ID o Tipo..." style="padding: 10px; border-radius: 5px; border: none;">
+                    <button onclick="buscarPokemon()" class="btnAdd">Buscar</button>
+                </div>
+
+                <div id="contenedor-pokemon">
+                    </div>
             </div>
         </section>
+
     </main>
 
     <div id="contenedor-footer"></div>
 
     <script>
+    
+        //Establece los objeos
+        let p1, p2; 
+        let turnoP1 = true;
+        let cooldownEspecial = [0, 0]; 
+        let cooldownDefensa = [0, 0];  
+    
+        //Da lo movimientos reales
+        async function prepararBatalla() {
+            const name1 = document.getElementById('p1-input').value.toLowerCase();
+            const name2 = document.getElementById('p2-input').value.toLowerCase();
+
+            try {
+                const res1 = await fetch(`https://pokeapi.co/api/v2/pokemon/${name1}`);
+                const res2 = await fetch(`https://pokeapi.co/api/v2/pokemon/${name2}`);
+                if (!res1.ok || !res2.ok) throw new Error("Pokémon no encontrado");
+
+                const data1 = await res1.json();
+                const data2 = await res2.json();
+
+                //Da 3 movimeintos aleatoros
+                const obtenerMovimientos = async (movesList) => {
+                    const seleccionados = movesList.sort(() => 0.5 - Math.random()).slice(0, 3);
+                    return await Promise.all(seleccionados.map(async (m) => {
+                        const resM = await fetch(m.move.url);
+                        const infoM = await resM.json();
+                        return {
+                            nombre: m.move.name,
+                            poder: infoM.power || 40, //Se asigna 40 si no tiene daño
+                            clase: infoM.damage_class.name //Fisico o especial
+                        };
+                    }));
+                };
+
+                p1 = { 
+                    name: data1.name, hp: 100, 
+                    atk: data1.stats[1].base_stat, def: data1.stats[2].base_stat,
+                    spAtk: data1.stats[3].base_stat, spDef: data1.stats[4].base_stat,
+                    img: data1.sprites.front_default,
+                    movimientos: await obtenerMovimientos(data1.moves)
+                };
+
+                p2 = { 
+                    name: data2.name, hp: 100, 
+                    atk: data2.stats[1].base_stat, def: data2.stats[2].base_stat,
+                    spAtk: data2.stats[3].base_stat, spDef: data2.stats[4].base_stat,
+                    img: data2.sprites.front_default,
+                    movimientos: await obtenerMovimientos(data2.moves)
+                };
+
+                document.getElementById('p1-sprite').innerHTML = `<h4>${p1.name}</h4><img src="${p1.img}" width="120">`;
+                document.getElementById('p2-sprite').innerHTML = `<h4>${p2.name}</h4><img src="${p2.img}" width="120">`;
+                document.getElementById('battle-setup').style.display = 'none';
+                document.getElementById('battle-field').style.display = 'block';
+
+                log(`¡La batalla comienza! ${p1.name} vs ${p2.name}`);
+
+            } catch (e) {
+                alert("Error al cargar movimientos de la API");
+            }
+        }
+
+        //Muestra lo que courre
+        function log(mensaje) {
+            const box = document.getElementById('battle-log');
+            const p = document.createElement('p');
+            p.innerText = mensaje;
+            box.append(p); //Mnesaje mas reciiente
+            box.scrollTop = box.scrollHeight;
+        }
+
+        //Ciclo de pelea
+        function cicloDePelea() {
+            if (!p1 || !p2 || p1.hp <= 0 || p2.hp <= 0) return; 
+            ejecutarAccion(); 
+            if (p1.hp > 0 && p2.hp > 0) {
+                setTimeout(cicloDePelea, 2000); 
+            }
+        }
+
+        //Ejecuta la accion
+        function ejecutarAccion() {
+            let atacante = turnoP1 ? p1 : p2;
+            let defensor = turnoP1 ? p2 : p1;
+
+            //Valida seguridad, por si la api no ha devuelto algo
+            if (!atacante.movimientos || atacante.movimientos.length === 0) {
+                log(`¡${atacante.name} no tiene energía para atacar!`);
+                turnoP1 = !turnoP1;
+                return;
+            }
+
+            //Se eligen 3 movimeintos de la api
+            const mov = atacante.movimientos[Math.floor(Math.random() * atacante.movimientos.length)];
+    
+            let statAtk = mov.clase === 'physical' ? atacante.atk : atacante.spAtk;
+            let statDef = mov.clase === 'physical' ? defensor.def : defensor.spDef;
+
+            //Calculaoms daño
+            let daño = Math.floor((mov.poder * (statAtk / statDef) / 5) + 2);
+
+            log(`${atacante.name.toUpperCase()} usó ${mov.nombre.toUpperCase()} e infligió ${daño} de daño.`);
+
+            defensor.hp -= daño;
+            if (defensor.hp < 0) defensor.hp = 0;
+
+            actualizarVida();
+
+            if (defensor.hp <= 0) {
+                log(`¡${defensor.name} ha caído!`);
+                setTimeout(() => terminarBatalla(atacante), 1000);
+                return;
+            }
+
+            turnoP1 = !turnoP1;
+        }
+
+        //Obtiene los datos de api e incia el ciclo
+        async function prepararBatallaAutomatica() {
+            await prepararBatalla(); 
+            setTimeout(cicloDePelea, 1500);
+        }
+
+        function cicloDePelea() {
+            if (p1.hp <= 0 || p2.hp <= 0) return; //Detener si alguien ya perdió
+
+            //Elige el movimiento al azar
+            const opciones = ['normal', 'especial', 'defensa'];
+            const seleccion = opciones[Math.floor(Math.random() * opciones.length)];
+
+            //Ejecuta la accion
+            ejecutarAccion(seleccion);
+
+            //Da contnuidad si nadie ha perdido
+            if (p1.hp > 0 && p2.hp > 0) {
+                //Esperan dos egundos entre ataque
+                setTimeout(cicloDePelea, 2000); 
+            }
+        }
+
+        //Funcion oara actualizar la vida
+        function actualizarVida() {
+            document.getElementById('p1-hp-fill').style.width = p1.hp + "%";
+            document.getElementById('p1-hp-text').innerText = p1.hp + "%";
+            document.getElementById('p2-hp-fill').style.width = p2.hp + "%";
+            document.getElementById('p2-hp-text').innerText = p2.hp + "%";
+        }
+
+        //Define al ganador
+        function terminarBatalla(ganador) {
+            document.getElementById('battle-field').style.display = 'none';
+            const screen = document.getElementById('ganador-screen');
+            screen.style.display = 'block';
+            document.getElementById('ganador-sprite').innerHTML = `
+            <h2 style="text-transform:uppercase">${ganador.name}</h2>
+            <img src="${ganador.img}" width="200">
+            `;
+        }
+
+        //Reseta si aguien perdio
+        function resetearBatalla() {
+            //Limpia las variables lógicas
+            p1 = null;
+            p2 = null;
+            turnoP1 = true;
+            cooldownEspecial = [0, 0];
+            cooldownDefensa = [0, 0];
+
+            //Reseta la vida
+            document.getElementById('p1-hp-fill').style.width = "100%";
+            document.getElementById('p1-hp-fill').style.backgroundColor = "green";
+            document.getElementById('p1-hp-text').innerText = "100%";
+
+            document.getElementById('p2-hp-fill').style.width = "100%";
+            document.getElementById('p2-hp-fill').style.backgroundColor = "green";
+            document.getElementById('p2-hp-text').innerText = "100%";
+
+            //Resetea lo visual
+            document.getElementById('battle-log').innerHTML = "<p>Esperando movimientos...</p>";
+            document.getElementById('ganador-screen').style.display = 'none';
+            document.getElementById('battle-setup').style.display = 'flex';
+            document.getElementById('battle-field').style.display = 'none';
+
+            //Resetea inputs
+            document.getElementById('p1-input').value = "";
+            document.getElementById('p2-input').value = "";
+        }
 
         async function cargarComponentes() {
             try {
@@ -269,6 +556,107 @@
         //Carga los componentes
         cargarComponentes();
 
+        let abortarCarga = false; //Detiene la carga masiva
+
+        async function cargarListaPokemon() {
+            const contenedor = document.getElementById('contenedor-pokemon');
+            contenedor.innerHTML = "<p style='width:100%'>Cargando Pokédex completa...</p>";
+            abortarCarga = false; //Resetea el estado al iniciar
+    
+            try {
+                const respuestaInicial = await fetch('https://pokeapi.co/api/v2/pokemon');
+                const datosIniciales = await respuestaInicial.json();
+                const totalDinamico = datosIniciales.count;
+
+                const respuestaCompleta = await fetch(`https://pokeapi.co/api/v2/pokemon?limit=${totalDinamico}`);
+                const datos = await respuestaCompleta.json();
+        
+                contenedor.innerHTML = ""; 
+                
+                for (let pokemon of datos.results) {
+                    //Detiene la carga al iniciar la busqueda
+                    if (abortarCarga) return; 
+
+                    const detalle = await fetch(pokemon.url);
+                    const info = await detalle.json();
+                    renderizarCarta(info);
+                }
+            } catch (error) {
+                console.error("Error:", error);
+            }
+        }
+
+        async function buscarPokemon() {
+            const busqueda = document.getElementById('inputBusqueda').value.toLowerCase().trim();
+            const contenedor = document.getElementById('contenedor-pokemon');
+            //Si no hay nada, vuelve a ampezar
+            if (!busqueda) {
+                cargarListaPokemon();
+                return;
+            }
+
+            //Se detiene la carga y borramos todo
+            abortarCarga = true; 
+            contenedor.innerHTML = "<p>Buscando...</p>";
+
+            try {
+                const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${busqueda}`);
+                if (res.ok) {
+                    const info = await res.json();
+                    contenedor.innerHTML = ""; //Limpia antes de mostar el resultado
+                    renderizarCarta(info);
+                } else {
+                    //Si nos es nombre o id, es por tipo
+                    const resTipo = await fetch(`https://pokeapi.co/api/v2/type/${busqueda}`);
+                    if (resTipo.ok) {
+                        const dataTipo = await resTipo.json();
+                        contenedor.innerHTML = "";
+                
+                        for (let p of dataTipo.pokemon) {
+                            if (!abortarCarga) break;
+                            const resP = await fetch(p.pokemon.url);
+                            const infoP = await resP.json();
+                            renderizarCarta(infoP);
+                        }
+                        if (dataTipo.pokemon.length === 0) {
+                            contenedor.innerHTML = "<p>No hay Pokémon de este tipo.</p>";
+                        }
+                    } else {
+                        contenedor.innerHTML = "<p>No se encontraron resultados para: " + busqueda + "</p>";
+                    }
+                }
+            } catch (error) {
+                contenedor.innerHTML = "<p>Error en la búsqueda.</p>";
+            }
+        }
+
+        //Fucnion para cada pokemon
+        function renderizarCarta(info) {
+            const contenedor = document.getElementById('contenedor-pokemon');
+            const tipos = info.types.map(t => t.type.name).join(', ');
+            //Abreviamos para no usar tanto espacio
+            const stats = info.stats.map(s => {
+                let nombreCorto = s.stat.name
+                .replace('special-attack', 'Sp.Atk')
+                .replace('special-defense', 'Sp.Def')
+                .replace('attack', 'Atk')
+                .replace('defense', 'Def')
+                .replace('speed', 'Spd');
+                return `<li>${nombreCorto}: ${s.base_stat}</li>`;
+            }).join('');
+            
+            //Imprime el pokemon
+            contenedor.innerHTML += `
+            <div class="card-pokemon">
+            <small style="color: grey;">#${info.id}</small>
+            <h4 style="text-transform: capitalize; margin: 5px 0;">${info.name}</h4>
+            <img src="${info.sprites.front_default}" alt="${info.name}" style="width: 80px;">
+            <p style="font-size: 11px; margin: 5px 0;"><b>Tipo:</b> ${tipos}</p>
+            <ul class="stats-list">${stats}</ul>
+            </div>
+            `;
+        }
+
         function actualizarInterfaz(logueado) {
             const contenedorTitulo = document.getElementById('contenedor-titulo-fijo');
             const contenedorBotones = document.getElementById('contenedor-botones-dinamico');
@@ -288,13 +676,16 @@
         const credenciales = { user: "13.ivan.ornelas.lac@gmail.com", pass: "Fenix12345" };
 
         function showSection(id) {
-           const token = localStorage.getItem('miToken');
-            // Si no hay token, solo permite login o registro
+            const token = localStorage.getItem('miToken');
             if (!token && (id === 'proyectos' || id === 'nosotros')) {
-                id = 'login';
-            }
-            document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
+            id = 'login';
+        }
+        
+        if (id === 'nosotros') {
+            cargarListaPokemon();
+        }
+        document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
         }
 
         //Valida las credenciales

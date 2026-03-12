@@ -343,8 +343,8 @@
         //Establece los objeos
         let p1, p2; 
         let turnoP1 = true;
-        let cooldownEspecial = [0, 0]; 
-        let cooldownDefensa = [0, 0];  
+        let cooldownEspecial = [3, 3]; 
+        let cooldownDefensa = [2, 2];  
     
         //Da lo movimientos reales
         async function prepararBatalla() {
@@ -463,18 +463,29 @@
         }
 
         function cicloDePelea() {
-            if (p1.hp <= 0 || p2.hp <= 0) return; //Detener si alguien ya perdió
+            if (p1.hp <= 0 || p2.hp <= 0) return;
 
-            //Elige el movimiento al azar
-            const opciones = ['normal', 'especial', 'defensa'];
+            //Identifica quién ataca 
+            let idx = turnoP1 ? 0 : 1;
+            let opciones = ['normal'];
+
+            //Solo agrega opciones si el contador llegó a 0
+            if (cooldownEspecial[idx] <= 0) opciones.push('especial');
+            if (cooldownDefensa[idx] <= 0) opciones.push('defensa');
+
             const seleccion = opciones[Math.floor(Math.random() * opciones.length)];
 
-            //Ejecuta la accion
+            //Si usa algo que no es normal, se reinicia su contador
+            if (seleccion === 'especial') cooldownEspecial[idx] = 3;
+            if (seleccion === 'defensa') cooldownDefensa[idx] = 2;
+
+            //Bajamos los contadores del jugador para el siguiente turno
+            if (cooldownEspecial[idx] > 0) cooldownEspecial[idx]--;
+            if (cooldownDefensa[idx] > 0) cooldownDefensa[idx]--;
+
             ejecutarAccion(seleccion);
 
-            //Da contnuidad si nadie ha perdido
             if (p1.hp > 0 && p2.hp > 0) {
-                //Esperan dos egundos entre ataque
                 setTimeout(cicloDePelea, 2000); 
             }
         }
